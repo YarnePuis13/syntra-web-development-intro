@@ -6,6 +6,7 @@
   </head>
   <body>
     <p><em>Psst: have a look at the JavaScript Console</em> 💁</p>
+    <ul id="ulist"></ul>
     <script>
       // Get your shorts on - this is an array workout!
       // ## Array Cardio Day 1
@@ -72,14 +73,86 @@
       ];
 
       // 1. Filter the list of inventors for those who were born in the 1500's
+      const x = inventors.map(bornIn1500);
+
+      function bornIn1500 (i) {
+        if (i.year > 1499 && i.year < 1600) {
+          return i;
+        } else {
+          return false;
+        }
+      }
+
+      const bornin1500 = inventors.filter((inventor) => {
+        if (inventor.year >= 1500 && inventor.year < 1600) {
+          return inventor;
+        }
+      })
+
+      //console.log(x);
+      //console.log(bornin1500);
 
       // 2. Give us an array of the inventors first and last names
+      const y = inventors.map(firstLastNames);
+      const names = inventors.map((inventor) => `${inventor.first} ${inventor.last}`)
+
+      function firstLastNames(i) {
+
+        let firstlast = i.first + " " + i.last;
+        return firstlast;
+      }
+      
+      //console.log(y);
+      let ulist = document.getElementById("ulist");
+
+      
+      ulist.innerHTML = y ;
+        
+    
 
       // 3. Sort the inventors by birthdate, oldest to youngest
+      const ordered = inventors.sort((a,b) => a.year - b.year)
+
+      //console.log(ordered);
 
       // 4. How many years did all the inventors live all together?
 
+      //LET OP MET DEZE!!!!!!!!!
+      const singleLived = inventors.map((inventor) => inventor.passed - inventor.year)
+      totalLived = 0;
+      for (let i = 0; i < singleLived.length; i++) {
+        totalLived = totalLived + singleLived[i];
+        
+      }
+
+      //LET OP MET DEZE !!!!!!!!!!!
+      const totalYearsLived = singleLived.reduce((acc, cv) => {return acc = acc + cv})
+      //console.log(totalYearsLived);
+
+      //HET JUISTE: 
+      const totalYearsLivedREAL = inventors.reduce((acc, cv) => {
+        let livedPerPerson = cv.passed - cv.year;
+
+        acc += livedPerPerson;
+        return acc;
+      }, 0)
+
+      //console.log(totalYearsLivedREAL);
+      //console.log(singleLived);
+      //console.log(totalLived);
+
       // 5. Sort the inventors by years lived
+      const yearsLived = inventors.sort((inventora, inventorb) => {
+        let inventor1 = inventora.passed - inventorb.year;
+        let inventor2 = inventorb.passed - inventorb.year;
+
+        
+      })
+
+      const yearsLivedREAL = inventors.sort((a, b) => a["passed"] - a.year < b.passed - b.year);
+
+      console.log(yearsLivedREAL)
+      //console.log(yearsLived);
 
       // 6. create a list of Boulevards in Paris that contain 'de' anywhere in the name
       // https://en.wikipedia.org/wiki/Category:Boulevards_in_Paris
