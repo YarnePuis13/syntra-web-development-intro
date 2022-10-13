@@ -182,6 +182,36 @@
     </li>
   </ul>
 <script>
+  //HET SELECTEREN VAN DE LI'S
+  //OMZETTEN NAAR ARRAY
+  //OPHALEN VAN DE DATA-ATTRIBUTE TIME PER LI
+  //OMZETTEN VAN MM:SS NAAR GETAL IN SECONDEN
+  //OPTELLEN
+  //TOTALE TIJD OMZETTEN IN HH:MM:SS
+
+  const videos = document.querySelectorAll('[data-time]');
+  //console.log(videos);
+
+  const videosTimeArr = Array.from(videos);
+  //console.log(videosTimeArr);
+
+  const timeInSeconds = videosTimeArr.reduce((acc, cv) => {
+
+    const time = cv.getAttribute('data-time');
+    const minutes = parseInt(time.split(":"),(0));
+    const seconds = parseInt(time.split(":"),(1));
+    acc = acc + minutes * 60 + seconds;
+    
+    return acc;
+  }, 0)
+
+  const getTime = (seconds) => {
+    return new Date(seconds * 1000).toISOString().substr(11,8);
+  };
+
+  console.log(getTime(timeInSeconds));
+
+  
 </script>
 </body>
 </html>

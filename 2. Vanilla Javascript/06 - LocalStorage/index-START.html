@@ -5,7 +5,7 @@
   <title>LocalStorage</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="displayItems()">
   <!--
       Fish SVG Cred:
       https://thenounproject.com/search/?q=fish&i=589236
@@ -19,17 +19,61 @@
     <ul class="plates">
       <li>Loading Tapas...</li>
     </ul>
-    <form class="add-items">
-      <input type="text" name="item" placeholder="Item Name" required>
-      <input type="submit" value="+ Add Item">
+    <form id="add-items1" class="add-items">
+      <input id="inputfield" type="text" name="item" placeholder="Item Name" required>
+      <input id="btn" type="submit" value="+ Add Item">
     </form>
   </div>
 
 <script>
-  const addItems = document.querySelector('.add-items');
+  /*
+  1. button ophalen uit DOM
+  2. event listener op submit
+      2.1 informatie van inputveld ophalen
+      2.2 opslagen in localstorage onder key tapas
+        2.2.1 opladen van key tapas uit localstorage
+        2.2.2 parsen naar Array
+        2.2.3 toevoegen van item aan array
+        2.2.4 strinifien
+        2.2.5 opniew wegschrijven
+  3. display (on submit & on load)
+      3.1 Element ophalen waar we items aan zullen koppelen
+      3.2 Ophalen van data uit local storage
+      3.3 Omzetten van string naar Array
+      3.4 mappen over array aanpassen html
+  */
+
   const itemsList = document.querySelector('.plates');
   const items = [];
 
+  const button = document.getElementById('btn');
+  const addItems1 = document.getElementById('add-items1');
+  const inputfield = document.getElementById('inputfield');
+  
+
+  addItems1.addEventListener('submit', function (e) {
+    e.preventDefault();
+    console.log('clicked');
+
+    items.push(inputfield.value);
+    console.log(items);
+
+    localStorage.setItem('tapas', JSON.stringify(items));
+    
+    
+    //console.log('retrievedObject: ', JSON.parse(retrievedObject));
+    console.log(items);
+    displayItems();
+  });
+   
+  function displayItems() {
+    let retrievedObject = localStorage.getItem('tapas');
+    itemsList.innerHTML = items.map((cv) => {
+    `<ul>${cv}</ul>`
+    });
+  }
+ 
+    
 </script>
 
 
