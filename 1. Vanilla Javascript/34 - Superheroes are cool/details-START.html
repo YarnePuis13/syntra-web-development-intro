@@ -7,9 +7,25 @@
     <title>Hero Details</title>
   </head>
   <body>
-    <script>
+    <div id="details">
 
+    </div>
+    <script>
+      console.log(window.location.search);
+
+      const details = document.getElementById('details');
+      const queryString = window.location.search;
+      console.log(queryString);
+      const q = queryString.split("=");
       
+      console.log(parseInt(q[1]));
+
+      const detailsHero = JSON.parse(localStorage.getItem('heroes'));
+      console.log(detailsHero);
+      //hetzelfde id hebben, die details showen
+      const ThisHero = detailsHero.find((detailsHero) => {detailsHero.id === parseInt(q[1])});
+      console.log(ThisHero);
+
     </script>
   </body>
 </html>
