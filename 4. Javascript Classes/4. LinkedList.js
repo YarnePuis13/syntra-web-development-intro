@@ -24,9 +24,19 @@
 */
 
 class LinkedList {
-  // code goes here
+  constructor() {
+    this.l = 0;
+    this.head = this.tail = null;
+  }
+
+  get length() {
+    return this.l;
+  }
 }
 
 class Node {
-  // code goes here
+  constructor(value) {
+    this.value = value;
+    this.next = null;
+  }
 }
