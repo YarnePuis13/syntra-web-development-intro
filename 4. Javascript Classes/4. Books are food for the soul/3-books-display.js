@@ -25,16 +25,13 @@ class LibrarySection {
     });
   }
 
-  // collecting book from shelf
   collectBook(bookTitle, author, borrow, quantity) {
-    // to arrive at the exact book, you have to spell correctly
     const titleInRegex = new RegExp(bookTitle, "gi");
     const authorInRegex = new RegExp(author, "gi");
     const bookToUse = this.availableBooks.filter((book) => {
       return titleInRegex.test(book.title) && authorInRegex.test(book.author);
     })[0];
 
-    // reduce the number of stocked books by one
     if (bookToUse && quantity <= bookToUse.inStock) {
       bookToUse.inStock -= quantity;
       borrow ? (bookToUse.borrowed += 1) : (bookToUse.reading += quantity);
@@ -44,7 +41,6 @@ class LibrarySection {
     }
   }
 
-  // returning book back to shelf
   returnBooks(ISBN, quantity) {
     const bookToReturn = this.allBookedBooks.filter((bookedBook) => {
       return bookedBook.ISBN === ISBN;
@@ -61,12 +57,9 @@ class LibrarySection {
 }
 
 class FantasySection extends LibrarySection {
-  #app;
-
-  constructor(app) {
+  constructor() {
     super();
-    this.#app = app;
-    // accessing this array directly will lead to CONFUSION
+
     this._books = [
       {
         title: "Another Book",
@@ -108,13 +101,52 @@ class FantasySection extends LibrarySection {
   }
 }
 
-class UI {
-  #app;
+class App {
+  constructor() {
+    // load in the books
+    const fantasyBooks = new FantasySection();
+    const state = {
+      books: fantasyBooks.all,
+    };
 
-  constructor(app) {
-    this.#app = app;
+    this.state = new Proxy(state, {
+      set: this.update,
+    });
+
+    // create a BookList, pass it the state object, and add it to the DOM
+    this.bookList = new BookList(this.state);
   }
 
+  update(prevState, property, value) {
+    console.log(`${JSON.stringify(prevState)} changed ${property} to ${value}`);
+  }
+}
+
+class BookList {
+  // this takes in the state and creates book items
+  constructor(state) {
+    // select the item already in the DOM to append books
+    // shoud it not exist yet, this is a good place to create it.
+    this.booksContainer = document.querySelector(".books");
+    for (let book of state.books) {
+      const bookInstance = new Book(book);
+      this.booksContainer.appendChild(bookInstance.el);
+    }
+  }
+}
+
+class Book {
+  constructor(book) {
+    this.book = book;
+  }
+
+  // the el methods returns actual HTML containing the book
+  get el() {
+    return this.#htmlToElement(this.#bookCard(this.book));
+  }
+
+  // this is a good candidate to put in its own class or module
+  // because we will need this in all the different component we have
   #htmlToElement(htmlString) {
     const template = document.createElement("template");
     htmlString = htmlString.trim(); // Never return a text node of whitespace as the result
@@ -122,27 +154,7 @@ class UI {
     return template.content.firstChild;
   }
 
-  #htmlToElements() {
-    const template = document.createElement("template");
-    template.innerHTML = html;
-    return template.content.childNodes;
-  }
-
-  clear(selector) {
-    const html = document.querySelector(selector);
-    let child = html.lastElementChild;
-    while (child) {
-      html.removeChild(child);
-      child = html.lastElementChild;
-    }
-  }
-
-  append(selector, html) {
-    const article = this.#htmlToElement(html);
-    return document.querySelector(selector).append(article);
-  }
-
-  bookCard(book) {
+  #bookCard(book) {
     return `
         <article class="book">
           <img src="${book.cover}" />
@@ -160,21 +172,3 @@ class UI {
         `;
   }
 }
-
-class App {
-  #fantasySection;
-  #ui;
-
-  constructor() {
-    this.#fantasySection = new FantasySection();
-    this.#ui = new UI();
-  }
-
-  bootstrap() {
-    const books = this.#fantasySection.all;
-    books.forEach((book) => this.#ui.append(".books", this.#ui.bookCard(book)));
-  }
-}
-
-console.log("test");
-//cee94f34bbf789a02be1acfc11e329b6490d6bf0

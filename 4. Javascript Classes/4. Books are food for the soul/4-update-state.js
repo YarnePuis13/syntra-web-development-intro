@@ -25,16 +25,13 @@ class LibrarySection {
     });
   }
 
-  // collecting book from shelf
   collectBook(bookTitle, author, borrow, quantity) {
-    // to arrive at the exact book, you have to spell correctly
     const titleInRegex = new RegExp(bookTitle, "gi");
     const authorInRegex = new RegExp(author, "gi");
     const bookToUse = this.availableBooks.filter((book) => {
       return titleInRegex.test(book.title) && authorInRegex.test(book.author);
     })[0];
 
-    // reduce the number of stocked books by one
     if (bookToUse && quantity <= bookToUse.inStock) {
       bookToUse.inStock -= quantity;
       borrow ? (bookToUse.borrowed += 1) : (bookToUse.reading += quantity);
@@ -44,7 +41,6 @@ class LibrarySection {
     }
   }
 
-  // returning book back to shelf
   returnBooks(ISBN, quantity) {
     const bookToReturn = this.allBookedBooks.filter((bookedBook) => {
       return bookedBook.ISBN === ISBN;
@@ -61,12 +57,9 @@ class LibrarySection {
 }
 
 class FantasySection extends LibrarySection {
-  #app;
-
-  constructor(app) {
+  constructor() {
     super();
-    this.#app = app;
-    // accessing this array directly will lead to CONFUSION
+
     this._books = [
       {
         title: "Another Book",
@@ -108,73 +101,99 @@ class FantasySection extends LibrarySection {
   }
 }
 
-class UI {
-  #app;
+class App {
+  constructor() {
+    const fantasyBooks = new FantasySection();
+    const state = {
+      books: fantasyBooks.all,
+    };
 
-  constructor(app) {
-    this.#app = app;
+    // when we click one of the elements, the state should update.
+    // Excercise: it would be best to refactor this in its own SideBar Class
+    document.querySelectorAll(".nav-selection").forEach((nav) => {
+      console.log(nav);
+      nav.addEventListener("click", (e) => {
+        const type = e.target.parentNode.dataset.bookType;
+        this.state.books = fantasyBooks[type];
+      });
+    });
+
+    // Can you create a searchbar component?
+
+    this.state = new Proxy(state, {
+      set: this.update,
+    });
+
+    this.bookList = new BookList(this.state);
+  }
+
+  // make sure update is an arrow function, so the this points to the class and not the function
+  update = (prevState, property, value) => {
+    // first update the state of the object
+    target[property] = value;
+    // based on what changes in the state, we can rerender different elements on the page
+    if (property === "books") {
+      this.bookList.render();
+    }
+    return true;
+  };
+}
+
+class BookList {
+  constructor(state) {
+    // keep a pointer to the state so when we render, we have the latest changes
+    this.state = state;
+    this.booksContainer = document.querySelector(".books");
+    for (let book of state.books) {
+      const bookInstance = new Book(book);
+      this.booksContainer.appendChild(bookInstance.el);
+    }
+  }
+
+  render() {
+    // empty the list
+    this.booksContainer.innerHTML = "";
+    // fill the list with the books
+    for (let book of this.state.books) {
+      const bookInstance = new Book(book);
+      this.booksContainer.appendChild(bookInstance.el);
+    }
+  }
+}
+
+class Book {
+  constructor(book) {
+    this.book = book;
+  }
+
+  get el() {
+    return this.#htmlToElement(this.#bookCard(this.book));
   }
 
   #htmlToElement(htmlString) {
     const template = document.createElement("template");
-    htmlString = htmlString.trim(); // Never return a text node of whitespace as the result
+    htmlString = htmlString.trim();
     template.innerHTML = htmlString;
     return template.content.firstChild;
   }
 
-  #htmlToElements() {
-    const template = document.createElement("template");
-    template.innerHTML = html;
-    return template.content.childNodes;
-  }
-
-  clear(selector) {
-    const html = document.querySelector(selector);
-    let child = html.lastElementChild;
-    while (child) {
-      html.removeChild(child);
-      child = html.lastElementChild;
-    }
-  }
-
-  append(selector, html) {
-    const article = this.#htmlToElement(html);
-    return document.querySelector(selector).append(article);
-  }
-
-  bookCard(book) {
+  #bookCard(book) {
     return `
-        <article class="book">
-          <img src="${book.cover}" />
-          <section>
-            <h3>${book.title}</h3>
-            <h5>${book.author}</h5>
-            <p>${book.desc}</p>
+          <article class="book">
+            <img src="${book.cover}" />
             <section>
-              <p>In Stock: <b>${book.inStock}</b></p>
-              <button class="collect" data-id="${book.ISBN}">Collect</button>
-              <button class="return" data-id="${book.ISBN}">Return</button>
+              <h3>${book.title}</h3>
+              <h5>${book.author}</h5>
+              <p>${book.desc}</p>
+              <section>
+                <p>In Stock: <b>${book.inStock}</b></p>
+                <button class="collect" data-id="${book.ISBN}">Collect</button>
+                <button class="return" data-id="${book.ISBN}">Return</button>
+              </section>
             </section>
-          </section>
-        </article>
-        `;
+          </article>
+          `;
   }
 }
 
-class App {
-  #fantasySection;
-  #ui;
-
-  constructor() {
-    this.#fantasySection = new FantasySection();
-    this.#ui = new UI();
-  }
-
-  bootstrap() {
-    const books = this.#fantasySection.all;
-    books.forEach((book) => this.#ui.append(".books", this.#ui.bookCard(book)));
-  }
-}
-
-console.log("test");
-//cee94f34bbf789a02be1acfc11e329b6490d6bf0
+const app = new App();

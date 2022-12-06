@@ -24,6 +24,7 @@ class LibrarySection {
       return book.borrowed && book.borrowed >= book.returned;
     });
   }
+<<<<<<< HEAD
 
   // collecting book from shelf
   collectBook(bookTitle, author, borrow, quantity) {
@@ -67,6 +68,14 @@ class FantasySection extends LibrarySection {
     super();
     this.#app = app;
     // accessing this array directly will lead to CONFUSION
+
+}
+
+class FantasySection extends LibrarySection {
+  constructor() {
+    super();
+
+ cee94f34bbf789a02be1acfc11e329b6490d6bf0
     this._books = [
       {
         title: "Another Book",
@@ -150,11 +159,73 @@ class UI {
 
   constructor(app) {
     this.#app = app;
+
+class App {
+  constructor() {
+    const fantasyBooks = new FantasySection();
+    const state = {
+      books: fantasyBooks.all,
+    };
+
+    document.querySelectorAll(".nav-selection").forEach((nav) => {
+      nav.addEventListener("click", (e) => {
+        const type = e.target.parentNode.dataset.bookType;
+        this.state.books = fantasyBooks[type];
+      });
+    });
+
+    this.state = new Proxy(state, {
+      set: this.update,
+    });
+
+    this.bookList = new BookList(this.state);
+  }
+
+  update = (target, property, value) => {
+    target[property] = value;
+    if (property === "books") {
+      this.bookList.render();
+    }
+    return true;
+  };
+}
+
+class BookList {
+  constructor(state) {
+    this.state = state;
+    this.booksContainer = document.querySelector(".books");
+    for (let book of state.books) {
+      const bookInstance = new Book(book);
+      this.booksContainer.appendChild(bookInstance.el);
+    }
+  }
+
+  render() {
+    this.booksContainer.innerHTML = "";
+    for (let book of this.state.books) {
+      const bookInstance = new Book(book);
+      this.booksContainer.appendChild(bookInstance.el);
+    }
+  }
+}
+
+class Book {
+  constructor(book) {
+    this.book = book;
+  }
+
+  get el() {
+    return this.#htmlToElement(this.#bookCard(this.book));
+cee94f34bbf789a02be1acfc11e329b6490d6bf0
   }
 
   #htmlToElement(htmlString) {
     const template = document.createElement("template");
+
     htmlString = htmlString.trim(); // Never return a text node of whitespace as the result
+
+    htmlString = htmlString.trim();
+cee94f34bbf789a02be1acfc11e329b6490d6bf0
     template.innerHTML = htmlString;
     return template.content.firstChild;
   }
@@ -239,9 +310,30 @@ class App {
     const books = this.#fantasySection.all;
     books.forEach((book) => this.#ui.append(".books", this.#ui.bookCard(book)));
     this.#input.initBookHandlers();
+=======
+  #bookCard(book) {
+    return `
+        <article class="book">
+          <img src="${book.cover}" />
+          <section>
+            <h3>${book.title}</h3>
+            <h5>${book.author}</h5>
+            <p>${book.desc}</p>
+            <section>
+              <p>In Stock: <b>${book.inStock}</b></p>
+              <button class="collect" data-id="${book.ISBN}">Collect</button>
+              <button class="return" data-id="${book.ISBN}">Return</button>
+            </section>
+          </section>
+        </article>
+        `;
+>>>>>>> cee94f34bbf789a02be1acfc11e329b6490d6bf0
   }
 }
 
 const app = new App();
+<<<<<<< HEAD
 app.bootstrap();
 console.log("App bootstrapped! 🚀");
+=======
+>>>>>>> cee94f34bbf789a02be1acfc11e329b6490d6bf0
