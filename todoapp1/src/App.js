@@ -1,14 +1,14 @@
 import Input from "./Input";
-import List from "./List";
+import TodoList from "./TodoList";
 import { useState } from "react";
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [todo, setToDo] = useState([]);
   return (
     <div className="App">
-      <h1>To Do App</h1>
-      <Input />
-      <List />
+      <h1>ToDo App</h1>
+      <Input todo={todo} />
+      <TodoList />
     </div>
   );
 }
